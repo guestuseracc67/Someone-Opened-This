@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Notifier</title>
+</head>
+<body>
+    <h1>Welcome to My Page!</h1>
+
+    <script>
+        // Replace with your own webhook URL
+        const WEBHOOK_URL = "https://discord.com/api/webhooks/1445988972835770439/BEAdATfuF_vCWdG6FeXCZQEAaw3BsNv-YsoQGfl3sRQXNw8xDerj7WrFrFkzGYTlf4yo";
+
+        async function notifyWebhook() {
+            const payload = {
+                content: "Someone opened your page!"
+            };
+
+            try {
+                await fetch(WEBHOOK_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                });
+                console.log("Webhook notified!");
+            } catch (err) {
+                console.error("Failed to notify webhook:", err);
+            }
+        }
+
+        // Call the function as soon as the page loads
+        notifyWebhook();
+    </script>
+</body>
+</html>
